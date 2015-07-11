@@ -4,7 +4,12 @@ HOSTS=("87.248.223.151 ic.4d461a73.0a3637.40.c3495.d.rncdn3.com /video2/d/d8/ce8
 RANGE="0-10000000"
 SAMPLES="3"
 IFACE="en0"
+GFORMAT="png"  # select png or pdf here
 
+
+test -d graphs || mkdir graphs
+test -d tmp || mkdir tmp
+test -d dumps || mkdir dumps
 
 for i in {0..1}; do
 	host=`echo ${HOSTS[$i]}| awk '{print $1}'`
@@ -19,10 +24,10 @@ for i in {0..1}; do
 		captcp timesequence -e -f 1.1 -i -o tmp dumps/${host}-${s}.pcap
 		captcp spacing -a 50 -f 1.1 -i -o tmp dumps/${host}-${s}.pcap
 		cd tmp
-		make 
-		mv time-sequence.pdf ../graphs/ts-${host}-${s}.pdf
-		mv throughput.pdf ../graphs/${host}-${s}.pdf
-		mv spacing.pdf ../graphs/spacing-${host}-${s}.pdf
+		make png
+		mv time-sequence.${GFORMAT} ../graphs/ts-${host}-${s}.${GFORMAT}
+		mv throughput.${GFORMAT} ../graphs/${host}-${s}.${GFORMAT}
+		mv spacing.${GFORMAT} ../graphs/spacing-${host}-${s}.${GFORMAT}
 		cd -
 		sleep 6
 	done
