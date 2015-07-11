@@ -19,8 +19,13 @@ for i in {0..1}; do
 		sudo tcpdump -n -i $IFACE -w dumps/${host}-${s}.pcap host $host &
 		TCPDUMP_PID=$!
 		curl -o /dev/null -r $RANGE --header "Host: $vhost" http://${host}${uri}
+		# wait for possible packets in flight before we kill tcpdump
+		sleep 2
 		kill $TCPDUMP_PID
-		captcp throughput -p -s 0.1 -i -o tmp dumps/${host}-${s}.pcap
+		# wait for tcpdump to quit
+		wait $TCPDUMP_PID
+		echo $?
+		captcp throughput -p -s 0.05 -i -o tmp dumps/${host}-${s}.pcap
 		captcp timesequence -e -f 1.1 -i -o tmp dumps/${host}-${s}.pcap
 		captcp spacing -a 50 -f 1.1 -i -o tmp dumps/${host}-${s}.pcap
 		cd tmp
@@ -29,6 +34,8 @@ for i in {0..1}; do
 		mv throughput.${GFORMAT} ../graphs/${host}-${s}.${GFORMAT}
 		mv spacing.${GFORMAT} ../graphs/spacing-${host}-${s}.${GFORMAT}
 		cd -
-		sleep 6
 	done
 done
+
+# Montage all into one image
+montage -label '%f' -tile 3x -geometry 700x500 -pointsize 18 -frame 5 -alpha remove graphs/*.png mon.png
