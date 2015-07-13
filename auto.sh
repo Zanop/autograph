@@ -1,9 +1,9 @@
 #!/bin/bash
 
 HOSTS=("87.248.223.151 ic.4d461a73.0a3637.40.c3495.d.rncdn3.com /video2/d/d8/ce82bf33098c2df04ecd0eafd3888fd8.mp4" "185.18.187.2 185.18.187.2 :84/t.mp4")
-RANGE="0-10000000"
+RANGE="0-2000000"
 SAMPLES="3"
-IFACE="en0"
+IFACE="en3"
 GFORMAT="png"  # select png or pdf here
 
 
@@ -28,11 +28,13 @@ for i in {0..1}; do
 		captcp throughput -p -s 0.05 -i -o tmp dumps/${host}-${s}.pcap
 		captcp timesequence -e -f 1.1 -i -o tmp dumps/${host}-${s}.pcap
 		captcp spacing -a 50 -f 1.1 -i -o tmp dumps/${host}-${s}.pcap
+		captcp inflight -o tmp -i -m bytes -f 1.1 dumps/${host}-${s}.pcap
 		cd tmp
 		make png
 		mv time-sequence.${GFORMAT} ../graphs/ts-${host}-${s}.${GFORMAT}
 		mv throughput.${GFORMAT} ../graphs/${host}-${s}.${GFORMAT}
 		mv spacing.${GFORMAT} ../graphs/spacing-${host}-${s}.${GFORMAT}
+		mv inflight.${GFORMAT} ../graphs/inflight-${host}-${s}.${GFORMAT}
 		cd -
 	done
 done
